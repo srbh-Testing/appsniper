@@ -11,16 +11,18 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
 
         val cleanupRequest = PeriodicWorkRequestBuilder<CleanupWorker>(
-            6, TimeUnit.HOURS
+            7, TimeUnit.DAYS, 1, TimeUnit.DAYS
         ).setConstraints(
             Constraints.Builder()
                 .setRequiresBatteryNotLow(true)
+                .setRequiresCharging(true)
+                .setRequiresDeviceIdle(true)
                 .build()
         ).build()
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             "app_sniper_cleanup",
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             cleanupRequest
         )
     }
